@@ -27,7 +27,10 @@ export async function startPipecatSession(opts: PipecatStartOptions): Promise<Pi
       },
       body: JSON.stringify({
         createDailyRoom: true,
-        dailyRoomProperties: { enable_prejoin_ui: false, exp_minutes: 10 },
+        dailyRoomProperties: {
+          enable_prejoin_ui: false,
+          exp: Math.floor(Date.now() / 1000) + 600,
+        },
         body: {
           sessionId,
           guestId: opts.guestId,
