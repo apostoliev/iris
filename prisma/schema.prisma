@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Guest {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String?  @unique
+  notes        String?  @db.Text
+  interestTags String[] @default([])
+  anniversary  String?
+  partnerName  String?
+  origin       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  relationships RelationshipRecord[]
+  rawNotes      RawNote[]
+  briefs        Brief[]
+  drafts        MessageDraft[]
+  messages      Message[]
+  replies       GuestReply[]
+}
+
+model PlaceMaker {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  role       String
+  property   String
+  title      String?
+  voiceStyle String   @db.Text
+  createdAt  DateTime @default(now())
+
+  relationships RelationshipRecord[]
+  rawNotes      RawNote[]
+  briefs        Brief[]
+  drafts        MessageDraft[]
+  messages      Message[]
+  repliesTo     GuestReply[]
+}
+
+model RelationshipRecord {
+  id           String    @id @default(cuid())
+  guestId      String
+  placeMakerId String
+  visits       Int       @default(0)
+  themes       String[]  @default([])
+  lastSeenAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  guest      Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  placeMaker PlaceMaker @relation(fields: [placeMakerId], references: [id], onDelete: Cascade)
+
+  @@unique([guestId, placeMakerId])
+}
+
+model RawNote {
+  id                 String   @id @default(cuid())
+  guestId            String
+  sourcePlaceMakerId String
+  content            String   @db.Text
+  sensitivity        String   @default("medium")
+  themes             String[] @default([])
+  suggestedRoles     String[] @default([])
+  createdAt          DateTime @default(now())
+
+  guest  Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  source PlaceMaker @relation(fields: [sourcePlaceMakerId], references: [id])
+  briefs Brief[]
+}
+
+model Brief {
+  id                    String   @id @default(cuid())
+  recipientPlaceMakerId String
+  guestId               String
+  content               String   @db.Text
+  sensitivity           String   @default("medium")
+  redactionNote         String?
+  sourceRawNoteId       String?
+  createdAt             DateTime @default(now())
+
+  recipient  PlaceMaker @relation(fields: [recipientPlaceMakerId], references: [id])
+  guest      Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  sourceNote RawNote?   @relation(fields: [sourceRawNoteId], references: [id])
+}
+
+model MessageDraft {
+  id               String   @id @default(cuid())
+  fromPlaceMakerId String
+  guestId          String
+  content          String   @db.Text
+  intent           String?
+  status           String   @default("draft")
+  createdAt        DateTime @default(now())
+
+  from    PlaceMaker @relation(fields: [fromPlaceMakerId], references: [id])
+  guest   Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  message Message?
+}
+
+model Message {
+  id               String   @id @default(cuid())
+  draftId          String?  @unique
+  fromPlaceMakerId String
+  guestId          String
+  content          String   @db.Text
+  twilioSid        String?
+  deliveredAt      DateTime @default(now())
+
+  from  PlaceMaker    @relation(fields: [fromPlaceMakerId], references: [id])
+  guest Guest         @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  draft MessageDraft? @relation(fields: [draftId], references: [id])
+}
+
+model GuestReply {
+  id             String   @id @default(cuid())
+  fromGuestId    String
+  toPlaceMakerId String
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+
+  fromGuest    Guest      @relation(fields: [fromGuestId], references: [id], onDelete: Cascade)
+  toPlaceMaker PlaceMaker @relation(fields: [toPlaceMakerId], references: [id])
+}

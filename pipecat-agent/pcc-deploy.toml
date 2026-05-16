@@ -1,0 +1,10 @@
+agent_name = "kin-dictation"
+image = "kin-dictation:latest"
+secret_set = "kin-dictation-secrets"
+
+[scaling]
+min_instances = 1
+max_instances = 2
+
+[daily]
+region = "us-west2"

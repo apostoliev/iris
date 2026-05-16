@@ -1,0 +1,4 @@
+pipecat-ai[daily,silero]>=0.0.50
+pipecatcloud>=0.1.0
+aiohttp>=3.9.0
+loguru>=0.7.0

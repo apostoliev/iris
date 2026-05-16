@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-display: 'Cormorant Garamond', 'Playfair Display', serif;
+    --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  html, body {
+    background: theme(colors.cream);
+    color: theme(colors.ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-whisper border border-mist rounded-xl;
+  }
+
+  .hairline {
+    @apply border-t border-mist;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full border border-mist px-2.5 py-0.5 text-xs text-muted;
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-discovery text-cream px-4 py-2 text-sm font-medium tracking-wide hover:bg-discovery2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .button-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-mist bg-whisper px-4 py-2 text-sm text-ink hover:bg-sandlight transition-colors;
+  }
+}
