@@ -46,9 +46,17 @@ export async function startPipecatSession(opts: PipecatStartOptions): Promise<Pi
     throw new Error(`Pipecat start failed (${response.status}): ${text.slice(0, 200)}`);
   }
 
-  const data = (await response.json()) as { dailyRoom?: { url: string; token: string } };
-  if (!data.dailyRoom?.url || !data.dailyRoom?.token) {
-    throw new Error('Pipecat response missing dailyRoom');
+  const data = (await response.json()) as {
+    dailyRoom?: string;
+    dailyToken?: string;
+    sessionId?: string;
+  };
+  if (!data.dailyRoom || !data.dailyToken) {
+    throw new Error('Pipecat response missing dailyRoom/dailyToken');
   }
-  return { roomUrl: data.dailyRoom.url, token: data.dailyRoom.token, sessionId };
+  return {
+    roomUrl: data.dailyRoom,
+    token: data.dailyToken,
+    sessionId: data.sessionId ?? sessionId,
+  };
 }
