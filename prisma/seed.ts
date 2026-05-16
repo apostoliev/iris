@@ -3,6 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  const existing = await prisma.placeMaker.findUnique({ where: { slug: 'maria' } });
+  if (existing && !process.env.KIN_FORCE_RESEED) {
+    console.log('Seed skipped — Kin data already present. Set KIN_FORCE_RESEED=true to reset.');
+    return;
+  }
+
   await prisma.guestReply.deleteMany();
   await prisma.message.deleteMany();
   await prisma.messageDraft.deleteMany();
