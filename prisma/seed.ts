@@ -144,6 +144,18 @@ async function main() {
     },
   });
 
+  await prisma.messageDraft.create({
+    data: {
+      fromPlaceMakerId: maria.id,
+      guestId: apostoli.id,
+      content:
+        "Apostoli — the Mavrotragano you said yes to is set aside for Friday. Thinking we open it with the meal rather than upstairs — quieter that way. Looking forward to having you both. — M.",
+      intent: 'pre_arrival_warm_outreach',
+      status: 'draft',
+      createdAt: new Date(twoDaysAgo.getTime() + 1000 * 60 * 2),
+    },
+  });
+
   await prisma.brief.createMany({
     data: [
       {
