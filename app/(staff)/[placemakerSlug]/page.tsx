@@ -123,12 +123,13 @@ export default async function StaffDashboard({
     <div className="mx-auto max-w-5xl px-7 py-12 flex flex-col gap-14">
       {/* Masthead */}
       <section className="flex flex-col gap-2">
-        <SmallCaps tracking={0.3}>{today}</SmallCaps>
+        <SmallCaps tracking={0.3} color="#1F4A3A">{today}</SmallCaps>
         <h1 className="font-serif text-[44px] leading-[1.05] text-ink mt-2">
           {firstName}&apos;s circle.
         </h1>
         <p className="font-serif text-[19px] text-inkFaint mt-1 max-w-xl italic">
-          {placeMaker.title ?? placeMaker.role.replace('_', ' ')} · Rosewood Sand Hill
+          {placeMaker.title ?? placeMaker.role.replace('_', ' ')} ·{' '}
+          <span style={{ color: '#1F4A3A' }}>Rosewood Sand Hill</span>
         </p>
       </section>
 
@@ -139,8 +140,8 @@ export default async function StaffDashboard({
         return (
           <section key={state} className="flex flex-col gap-4">
             <div className="flex items-baseline justify-between">
-              <SmallCaps tracking={0.3}>{sectionLabel[state]}</SmallCaps>
-              <SmallCaps size={9.5} color="#B5B0A8">
+              <SmallCaps tracking={0.3} color="#1F4A3A">{sectionLabel[state]}</SmallCaps>
+              <SmallCaps size={9.5} color="#5C7368">
                 {rows.length} {rows.length === 1 ? 'guest' : 'guests'}
               </SmallCaps>
             </div>

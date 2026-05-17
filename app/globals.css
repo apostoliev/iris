@@ -58,6 +58,34 @@
     border-radius: 2px;
   }
 
+  /* A postcard: subtle elevation, paper feel. For guest-facing letters. */
+  .postcard {
+    background: theme(colors.paperLight);
+    border: 1px solid theme(colors.hairSoft);
+    border-radius: 3px;
+    box-shadow:
+      0 1px 0 rgba(26, 26, 26, 0.02),
+      0 1px 3px rgba(26, 26, 26, 0.04),
+      0 8px 24px -12px rgba(26, 26, 26, 0.10);
+  }
+
+  /* Person card — for the circle row. */
+  .person-card {
+    background: theme(colors.paperLight);
+    border: 1px solid theme(colors.hairSoft);
+    border-radius: 3px;
+    transition: transform 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
+      border-color 180ms;
+  }
+  .person-card:hover,
+  .person-card:focus-visible {
+    transform: translateY(-1px);
+    border-color: theme(colors.hair);
+    box-shadow: 0 6px 16px -8px rgba(26, 26, 26, 0.12);
+    outline: none;
+  }
+
   .hairline {
     height: 1px;
     background: theme(colors.hair);

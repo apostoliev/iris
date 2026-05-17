@@ -81,8 +81,11 @@ export default async function ManagerGuestPage({
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-8 flex flex-col gap-8">
-      <div className="text-sm">
-        <Link href="/manager" className="text-muted hover:text-ink">
+      <div className="text-[10px] uppercase tracking-[0.22em]">
+        <Link
+          href="/manager"
+          className="text-discovery hover:text-discoveryDeep"
+        >
           ← back to property overview
         </Link>
       </div>

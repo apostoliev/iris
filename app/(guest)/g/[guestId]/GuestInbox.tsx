@@ -4,9 +4,11 @@ import { useSse } from '@/lib/use-sse';
 import type { ThreadItem } from '@/components/Thread';
 import { SmallCaps } from '@/components/iris/SmallCaps';
 import { Initials } from '@/components/iris/Initials';
-import { IrisWordmark, IrisLockup } from '@/components/iris/Marks';
-import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const DISCOVERY = '#1F4A3A';
+const DISCOVERY_DEEP = '#143E2E';
+const DISCOVERY_MUTED = '#5C7368';
 
 type PlaceMakerCard = {
   slug: string;
@@ -46,7 +48,6 @@ export function GuestInbox({
   );
   const [sending, setSending] = useState(false);
   const [mode, setMode] = useState<'inbox' | 'compose'>('inbox');
-  // When composeFresh is true, we're writing a NEW message (not replying).
   const [composeFresh, setComposeFresh] = useState(false);
 
   useSse(`guest-${guest.id}`, (event) => {
@@ -118,13 +119,12 @@ export function GuestInbox({
       : null;
   const guestFirst = guest.name.split(' ')[0];
 
-  // Compose mode covers both replies and fresh "write to anyone in your circle".
   if (mode === 'compose') {
     if (composeFresh && composeTarget) {
       return (
-        <ReplyComposeScreen
+        <ComposeScreen
           guestFirst={guestFirst}
-          sender={composeTarget}
+          recipient={composeTarget}
           original={null}
           value={replyText}
           onChange={setReplyText}
@@ -139,9 +139,9 @@ export function GuestInbox({
     }
     if (activeMessage && sender) {
       return (
-        <ReplyComposeScreen
+        <ComposeScreen
           guestFirst={guestFirst}
-          sender={sender}
+          recipient={sender}
           original={activeMessage.content}
           value={replyText}
           onChange={setReplyText}
@@ -155,15 +155,31 @@ export function GuestInbox({
 
   return (
     <div className="min-h-screen bg-paper flex flex-col">
-      {/* iOS-style chrome */}
-      <header className="px-6 pt-10 pb-5 flex items-baseline justify-between">
-        <IrisWordmark size={22} />
-        <IrisLockup property="Rosewood" />
+      {/* Property masthead — Rosewood-first */}
+      <header className="px-6 pt-8 pb-5">
+        <div className="flex items-baseline justify-between">
+          <div className="flex flex-col gap-0.5">
+            <span
+              className="font-serif text-[19px] leading-none"
+              style={{ color: DISCOVERY }}
+            >
+              Rosewood
+            </span>
+            <SmallCaps size={9} tracking={0.30} color={DISCOVERY_MUTED}>
+              Sand Hill
+            </SmallCaps>
+          </div>
+          <SmallCaps size={9} tracking={0.30} color={DISCOVERY_MUTED}>
+            {guestFirst}&apos;s circle
+          </SmallCaps>
+        </div>
       </header>
 
-      {/* The featured postcard */}
+      <Divider />
+
+      {/* The postcard — the latest thing someone sent you */}
       {activeMessage && sender ? (
-        <PostcardMessage
+        <Postcard
           guestFirst={guestFirst}
           sender={sender}
           at={activeMessage.at}
@@ -171,23 +187,37 @@ export function GuestInbox({
           onReply={() => setMode('compose')}
         />
       ) : (
-        <section className="px-6 py-8 flex-1">
-          <SmallCaps tracking={0.3}>Your circle at Sand Hill</SmallCaps>
-          <p className="font-serif text-[28px] text-ink mt-2 leading-tight">
-            A few people who know you here, {guestFirst}.
+        <section className="px-6 pt-9 pb-7">
+          <p
+            className="font-serif text-[24px] leading-[1.25] max-w-[28ch]"
+            style={{ color: DISCOVERY_DEEP }}
+          >
+            Welcome back, {guestFirst}.
+          </p>
+          <p className="font-serif text-[15.5px] text-inkFaint italic mt-3 max-w-[36ch]">
+            The people here who know you are below. Tap anyone to write.
           </p>
         </section>
       )}
 
-      <div className="hairline mx-6" />
+      <Divider />
 
       {/* Your circle — the private network */}
-      <section className="px-6 py-8">
-        <SmallCaps tracking={0.3}>Your circle at Sand Hill</SmallCaps>
-        <p className="font-serif text-[19px] text-ink mt-2 leading-snug max-w-[36ch] italic">
-          The people here who know you, {guestFirst}. Tap anyone to write.
+      <section className="px-6 pt-7 pb-8">
+        <div className="flex items-baseline justify-between">
+          <SmallCaps tracking={0.30} color={DISCOVERY}>
+            Your circle
+          </SmallCaps>
+          <SmallCaps size={9} tracking={0.22} color={DISCOVERY_MUTED}>
+            {placeMakers.length}{' '}
+            {placeMakers.length === 1 ? 'person' : 'people'}
+          </SmallCaps>
+        </div>
+        <p className="font-serif text-[15px] text-inkFaint italic mt-2 max-w-[36ch]">
+          The people at Sand Hill who know you, {guestFirst}.
+          {placeMakers.length > 1 && ' Tap anyone to write.'}
         </p>
-        <div className="mt-6 flex gap-5 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="mt-5 flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
           {placeMakers.map((pm) => {
             const meta = circleMeta(pm);
             return (
@@ -195,24 +225,17 @@ export function GuestInbox({
                 type="button"
                 key={pm.slug}
                 onClick={() => openComposeTo(pm.slug)}
-                className="flex flex-col items-center gap-2 flex-shrink-0 w-[88px] focus:outline-none group"
+                className="person-card flex-shrink-0 w-[112px] flex flex-col items-center gap-2 px-3 py-4 text-center"
               >
-                <span className="rounded-full transition-transform group-hover:-translate-y-0.5 group-focus:-translate-y-0.5">
-                  <Initials name={pm.name} size={68} tone="paper" />
-                </span>
-                <span className="font-serif text-[15px] text-ink leading-tight text-center">
+                <Initials name={pm.name} size={56} tone="discoverySoft" />
+                <span className="font-serif text-[15.5px] text-ink leading-tight mt-0.5">
                   {pm.name.split(' ')[0]}
                 </span>
-                <SmallCaps size={8.5} tracking={0.22} className="text-center">
+                <SmallCaps size={8.5} tracking={0.22} color={DISCOVERY_MUTED}>
                   {pm.title ?? pm.role.replace('_', ' ')}
                 </SmallCaps>
                 {meta && (
-                  <SmallCaps
-                    size={8.5}
-                    tracking={0.22}
-                    className="text-center"
-                    color="#B5B0A8"
-                  >
+                  <SmallCaps size={8} tracking={0.22} color="#B5B0A8">
                     {meta}
                   </SmallCaps>
                 )}
@@ -222,47 +245,65 @@ export function GuestInbox({
         </div>
       </section>
 
-      <div className="hairline mx-6" />
+      <Divider />
 
-      {/* Recent messages */}
-      <section className="px-6 py-7 flex-1">
-        <SmallCaps tracking={0.3}>Recent</SmallCaps>
+      {/* Recent thread */}
+      <section className="px-6 pt-7 pb-8 flex-1">
+        <SmallCaps tracking={0.30} color={DISCOVERY}>
+          Recent
+        </SmallCaps>
         <ul className="mt-4 flex flex-col">
           {thread.length === 0 && (
-            <li className="font-serif text-[15px] italic text-stone">No messages yet.</li>
+            <li className="font-serif text-[15px] italic text-stone py-4">
+              No messages yet.
+            </li>
           )}
-          {[...thread].reverse().map((it) => {
-            const senderName = it.kind === 'message' ? it.fromName : `You → ${it.toName}`;
-            const isActive = it.id === activeMessageId;
+          {[...thread].reverse().map((it, idx) => {
+            const isMessage = it.kind === 'message';
+            const isActive = isMessage && it.id === activeMessageId;
+            const partyName = isMessage ? it.fromName : it.toName;
             return (
               <li key={it.id}>
                 <button
                   type="button"
                   onClick={() => {
-                    if (it.kind === 'message') {
+                    if (isMessage) {
                       setActiveMessageId(it.id);
                       setReplyingTo(it.fromSlug);
+                    } else {
+                      // Tapping a reply = re-open composer to same recipient
+                      openComposeTo(it.toSlug);
                     }
                   }}
                   className={cn(
-                    'w-full text-left grid grid-cols-[40px_1fr_auto] gap-3 items-start py-4 border-t border-hair transition-colors',
+                    'w-full text-left grid grid-cols-[44px_1fr_auto] gap-3 items-center py-4 transition-colors',
+                    idx > 0 && 'border-t border-hairSoft',
                     isActive ? 'bg-paperLight' : 'hover:bg-paperLight'
                   )}
+                  style={
+                    isActive
+                      ? { boxShadow: `inset 2px 0 0 ${DISCOVERY}` }
+                      : undefined
+                  }
                 >
-                  {it.kind === 'message' ? (
-                    <Initials name={it.fromName} size={36} tone="paper" />
-                  ) : (
-                    <div className="w-9 h-9" />
-                  )}
+                  <Initials
+                    name={partyName}
+                    size={40}
+                    tone={isMessage ? 'discoverySoft' : 'paper'}
+                  />
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <span className="font-serif text-[16px] text-ink leading-tight">
-                      {senderName}
+                      {isMessage ? partyName : `You wrote to ${partyName}`}
                     </span>
-                    <span className="font-serif text-[13.5px] text-inkFaint truncate">
+                    <span className="font-serif text-[14px] text-inkFaint truncate italic">
                       {it.content.split('\n')[0]}
                     </span>
                   </div>
-                  <SmallCaps size={9} tracking={0.22} className="self-start">
+                  <SmallCaps
+                    size={9}
+                    tracking={0.22}
+                    color={DISCOVERY_MUTED}
+                  >
                     {formatShort(it.at)}
                   </SmallCaps>
                 </button>
@@ -272,8 +313,11 @@ export function GuestInbox({
         </ul>
       </section>
 
-      <footer className="border-t border-hair py-5 text-center">
-        <SmallCaps size={9} tracking={0.3} color="#B5B0A8">
+      <footer
+        className="border-t py-5 text-center"
+        style={{ borderColor: 'rgba(31, 74, 58, 0.14)' }}
+      >
+        <SmallCaps size={9} tracking={0.30} color={DISCOVERY_MUTED}>
           A private network · between you and the people who serve you here
         </SmallCaps>
       </footer>
@@ -281,7 +325,9 @@ export function GuestInbox({
   );
 }
 
-function PostcardMessage({
+/* ─── Postcard — the latest message, treated as a letter ─────── */
+
+function Postcard({
   guestFirst,
   sender,
   at,
@@ -294,52 +340,79 @@ function PostcardMessage({
   content: string;
   onReply: () => void;
 }) {
-  const lead = content.split('\n')[0];
-  const rest = content.split('\n').slice(1).join('\n');
-  const date = new Date(at).toLocaleString('en-US', {
-    weekday: 'long',
+  const date = new Date(at);
+  const day = date.toLocaleString('en-US', { weekday: 'long' });
+  const clock = date.toLocaleString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
   });
+  const senderFirst = sender.name.split(' ')[0];
+  const lines = content.split('\n').filter(Boolean);
+
   return (
-    <section className="px-7 pt-2 pb-6 flex flex-col items-center text-center">
-      <Initials name={sender.name} size={68} tone="dark" />
-      <SmallCaps tracking={0.3} className="mt-4">
-        {date.replace(/^\w/, (c) => c.toUpperCase())}
-      </SmallCaps>
-      <h1 className="font-serif text-[26px] text-ink mt-1">{sender.name}</h1>
-      <SmallCaps size={9.5} tracking={0.22}>
-        {sender.title ?? sender.role.replace('_', ' ')} · {sender.property}
-      </SmallCaps>
-      <div className="hairline w-12 mt-5 mb-6" />
-      <div className="text-left font-serif text-inkSoft max-w-[34ch]">
-        <p className="text-[22px] leading-[1.3] mb-3">
-          {guestFirst} —
-        </p>
-        <p className="text-[16.5px] leading-[1.6] whitespace-pre-wrap">
-          {lead}
-          {rest && (
-            <>
-              <br />
-              {rest}
-            </>
-          )}
-        </p>
+    <section className="px-5 pt-7 pb-2">
+      <article className="postcard px-7 pt-6 pb-7 flex flex-col gap-5">
+        {/* Date strip */}
+        <div className="flex items-center justify-between">
+          <SmallCaps size={9.5} tracking={0.30} color={DISCOVERY}>
+            {day}
+          </SmallCaps>
+          <SmallCaps size={9.5} tracking={0.22} color={DISCOVERY_MUTED}>
+            {clock}
+          </SmallCaps>
+        </div>
+
+        {/* Body */}
+        <div className="font-serif text-inkSoft">
+          <p className="text-[20px] leading-[1.3] mb-3">{guestFirst} —</p>
+          <div className="text-[16.5px] leading-[1.65] flex flex-col gap-2.5">
+            {lines.map((line, i) => (
+              <p key={i} className="whitespace-pre-wrap">
+                {line}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        {/* Sender */}
+        <div
+          className="pt-5 mt-1 flex items-center gap-3"
+          style={{ borderTop: '1px solid rgba(31, 74, 58, 0.16)' }}
+        >
+          <Initials name={sender.name} size={42} tone="discovery" />
+          <div className="flex flex-col">
+            <span
+              className="font-serif text-[16px] leading-tight"
+              style={{ color: DISCOVERY_DEEP }}
+            >
+              {sender.name}
+            </span>
+            <SmallCaps size={9} tracking={0.22} color={DISCOVERY_MUTED}>
+              {sender.title ?? sender.role.replace('_', ' ')} ·{' '}
+              {sender.property}
+            </SmallCaps>
+          </div>
+        </div>
+      </article>
+
+      <div className="px-2 mt-5 mb-2">
+        <button
+          type="button"
+          onClick={onReply}
+          className="button-primary w-full"
+        >
+          Reply to {senderFirst}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={onReply}
-        className="button-primary mt-7 w-full max-w-[280px]"
-      >
-        Reply to {sender.name.split(' ')[0]}
-      </button>
     </section>
   );
 }
 
-function ReplyComposeScreen({
+/* ─── Compose / reply screen ─────────────────────────────────── */
+
+function ComposeScreen({
   guestFirst,
-  sender,
+  recipient,
   original,
   value,
   onChange,
@@ -348,7 +421,7 @@ function ReplyComposeScreen({
   onBack,
 }: {
   guestFirst: string;
-  sender: PlaceMakerCard;
+  recipient: PlaceMakerCard;
   original: string | null;
   value: string;
   onChange: (v: string) => void;
@@ -356,72 +429,121 @@ function ReplyComposeScreen({
   sending: boolean;
   onBack: () => void;
 }) {
-  const senderFirst = sender.name.split(' ')[0];
+  const recipientFirst = recipient.name.split(' ')[0];
   const isFresh = original === null;
+
   return (
     <div className="min-h-screen bg-paper flex flex-col">
-      <header className="px-6 pt-10 pb-4 flex items-center justify-between border-b border-hair">
-        <button type="button" onClick={onBack} className="text-stone">
-          <SmallCaps tracking={0.22}>← back</SmallCaps>
+      <header
+        className="px-6 pt-8 pb-4 flex items-center justify-between border-b"
+        style={{ borderColor: 'rgba(31, 74, 58, 0.14)' }}
+      >
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 px-2 py-1 -mx-2"
+        >
+          <SmallCaps tracking={0.22} color={DISCOVERY}>
+            ← back
+          </SmallCaps>
         </button>
-        <SmallCaps tracking={0.3}>
-          {isFresh ? `Write to ${senderFirst}` : `Reply to ${senderFirst}`}
+        <SmallCaps tracking={0.30} color={DISCOVERY}>
+          {isFresh ? 'Write' : 'Reply'}
         </SmallCaps>
-        <div className="w-10" />
+        <div className="w-12" />
       </header>
-      <div className="px-7 py-6 flex-1 flex flex-col gap-6">
-        {isFresh ? (
-          <div className="flex items-center gap-3">
-            <Initials name={sender.name} size={48} tone="paper" />
-            <div className="flex flex-col">
-              <span className="font-serif text-[19px] text-ink leading-tight">
-                {sender.name}
-              </span>
-              <SmallCaps size={9.5} tracking={0.22}>
-                {sender.title ?? sender.role.replace('_', ' ')} ·{' '}
-                {sender.property}
-              </SmallCaps>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="card-inset px-5 py-4"
-            style={{ borderLeft: '2px solid #D8D3CB' }}
-          >
-            <SmallCaps size={9.5} tracking={0.22}>
-              {sender.name} wrote
+
+      <div className="px-6 pt-7 pb-4 flex-1 flex flex-col gap-6">
+        {/* Recipient identity — the visual anchor of the screen */}
+        <section className="flex items-center gap-4">
+          <Initials name={recipient.name} size={56} tone="discovery" />
+          <div className="flex flex-col gap-0.5">
+            <SmallCaps size={9} tracking={0.30} color={DISCOVERY_MUTED}>
+              {isFresh ? 'To' : 'In reply to'}
             </SmallCaps>
-            <p className="font-serif text-[15px] leading-[1.55] text-inkFaint mt-2 italic whitespace-pre-wrap">
+            <span
+              className="font-serif text-[22px] leading-tight"
+              style={{ color: DISCOVERY_DEEP }}
+            >
+              {recipient.name}
+            </span>
+            <SmallCaps size={9} tracking={0.22} color={DISCOVERY_MUTED}>
+              {recipient.title ?? recipient.role.replace('_', ' ')} ·{' '}
+              {recipient.property}
+            </SmallCaps>
+          </div>
+        </section>
+
+        {/* Quoted original — only when replying */}
+        {!isFresh && original && (
+          <div
+            className="px-5 py-4"
+            style={{
+              borderLeft: `2px solid ${DISCOVERY}`,
+              background: 'rgba(31, 74, 58, 0.03)',
+            }}
+          >
+            <SmallCaps size={9} tracking={0.22} color={DISCOVERY_MUTED}>
+              {recipient.name.split(' ')[0]} wrote
+            </SmallCaps>
+            <p className="font-serif text-[15px] leading-[1.6] text-inkFaint mt-2 italic whitespace-pre-wrap">
               {original}
             </p>
           </div>
         )}
-        <div className="flex-1 relative">
+
+        {/* The letter — paper-like input area */}
+        <div
+          className="flex-1 flex flex-col px-5 py-4 min-h-[200px]"
+          style={{
+            background: '#FAF8F3',
+            border: '1px solid rgba(26, 26, 26, 0.06)',
+            borderRadius: 3,
+          }}
+        >
+          <SmallCaps size={9} tracking={0.22} color={DISCOVERY_MUTED}>
+            From {guestFirst}
+          </SmallCaps>
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={
               isFresh
-                ? `What would you like to say to ${senderFirst}, ${guestFirst}?`
-                : `Write to ${senderFirst}…`
+                ? `Hi ${recipientFirst}, …`
+                : `Write to ${recipientFirst}…`
             }
-            rows={6}
+            rows={8}
             autoFocus
-            className="w-full h-full resize-none bg-transparent font-serif text-[19px] leading-[1.5] text-inkSoft placeholder:italic placeholder:text-stoneLight focus:outline-none"
+            className="flex-1 w-full mt-3 resize-none bg-transparent font-serif text-[18px] leading-[1.55] text-inkSoft placeholder:italic placeholder:text-stoneLight focus:outline-none"
           />
         </div>
       </div>
-      <footer className="border-t border-hair px-6 py-4">
+
+      <footer
+        className="border-t px-6 py-4"
+        style={{ borderColor: 'rgba(31, 74, 58, 0.14)' }}
+      >
         <button
           type="button"
           onClick={onSend}
           disabled={sending || !value.trim()}
           className="button-primary w-full"
         >
-          {sending ? 'Sending…' : `Send to ${senderFirst} →`}
+          {sending ? 'Sending…' : `Send to ${recipientFirst} →`}
         </button>
       </footer>
     </div>
+  );
+}
+
+/* ─── Helpers ─────────────────────────────────────────────────── */
+
+function Divider() {
+  return (
+    <div
+      className="mx-6"
+      style={{ height: 1, background: 'rgba(31, 74, 58, 0.10)' }}
+    />
   );
 }
 

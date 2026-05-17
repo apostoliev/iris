@@ -116,9 +116,9 @@ export function GuestCockpit({
       {/* Profile sidebar */}
       <aside className="flex flex-col gap-7">
         <div className="flex flex-col gap-3">
-          <SmallCaps tracking={0.3}>Guest</SmallCaps>
+          <SmallCaps tracking={0.3} color="#1F4A3A">Guest</SmallCaps>
           <div className="flex items-center gap-4">
-            <Initials name={guest.name} size={64} tone="dark" />
+            <Initials name={guest.name} size={64} tone="discovery" />
             <div className="flex flex-col">
               <h1 className="font-serif text-[32px] text-ink leading-[1.05]">{firstName}.</h1>
               <span className="font-serif text-[15px] text-inkFaint italic">
@@ -126,7 +126,7 @@ export function GuestCockpit({
               </span>
             </div>
           </div>
-          <SmallCaps size={10} tracking={0.22}>
+          <SmallCaps size={10} tracking={0.22} color="#5C7368">
             {stayBadge}
             {guest.visitCount ? ` · ${guest.visitCount} visits` : ''}
           </SmallCaps>
@@ -140,7 +140,7 @@ export function GuestCockpit({
           {guest.anniversary && <Row label="Anniversary">{guest.anniversary}</Row>}
           {guest.interestTags.length > 0 && (
             <div>
-              <SmallCaps size={9.5} tracking={0.22}>
+              <SmallCaps size={9.5} tracking={0.22} color="#1F4A3A">
                 The cellar remembers
               </SmallCaps>
               <ul className="mt-2 flex flex-col gap-1.5">
@@ -154,7 +154,7 @@ export function GuestCockpit({
           )}
           {guest.notes && (
             <div>
-              <SmallCaps size={9.5} tracking={0.22}>
+              <SmallCaps size={9.5} tracking={0.22} color="#1F4A3A">
                 Notes
               </SmallCaps>
               <p className="font-serif text-[15px] leading-[1.55] text-inkFaint mt-2">
@@ -178,7 +178,7 @@ export function GuestCockpit({
         {/* Your brief — and only yours. */}
         <section>
           <div className="flex items-baseline justify-between mb-2">
-            <SmallCaps tracking={0.3}>Your brief on {firstName}</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Your brief on {firstName}</SmallCaps>
             <div className="flex items-center gap-2">
               {working && (
                 <span className="inline-flex items-center gap-1.5 text-[11px] text-discovery uppercase tracking-[0.22em]">
@@ -222,7 +222,7 @@ export function GuestCockpit({
         {/* Drafted message + custom compose */}
         <section>
           <div className="flex items-baseline justify-between mb-2">
-            <SmallCaps tracking={0.3}>Drafted in your voice</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Drafted in your voice</SmallCaps>
             <ComposeMessage
               placeMakerId={placeMakerId}
               placeMakerName={placeMakerName}
@@ -247,12 +247,12 @@ export function GuestCockpit({
         {/* Thread */}
         <section>
           <div className="flex items-baseline justify-between mb-3">
-            <SmallCaps tracking={0.3}>Thread with {firstName}</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Thread with {firstName}</SmallCaps>
             <a
               href={`/g/${guest.id}`}
               target="_blank"
               rel="noreferrer"
-              className="text-[10px] uppercase tracking-[0.22em] text-stone hover:text-discovery"
+              className="text-[10px] uppercase tracking-[0.22em] text-discovery hover:text-discoveryDeep"
             >
               Open guest view ↗
             </a>

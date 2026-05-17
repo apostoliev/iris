@@ -138,9 +138,9 @@ export function ManagerGuestView({
       {/* Profile sidebar */}
       <aside className="flex flex-col gap-7">
         <div className="flex flex-col gap-3">
-          <SmallCaps tracking={0.3}>Guest · oversight view</SmallCaps>
+          <SmallCaps tracking={0.3} color="#1F4A3A">Guest · oversight view</SmallCaps>
           <div className="flex items-center gap-4">
-            <Initials name={guest.name} size={64} tone="dark" />
+            <Initials name={guest.name} size={64} tone="discovery" />
             <div className="flex flex-col">
               <h1 className="font-serif text-[32px] text-ink leading-[1.05]">
                 {firstName}.
@@ -164,7 +164,7 @@ export function ManagerGuestView({
           {guest.anniversary && <Row label="Anniversary">{guest.anniversary}</Row>}
           {guest.interestTags.length > 0 && (
             <div>
-              <SmallCaps size={9.5} tracking={0.22}>
+              <SmallCaps size={9.5} tracking={0.22} color="#1F4A3A">
                 The cellar remembers
               </SmallCaps>
               <ul className="mt-2 flex flex-col gap-1.5">
@@ -181,7 +181,7 @@ export function ManagerGuestView({
           )}
           {guest.notes && (
             <div>
-              <SmallCaps size={9.5} tracking={0.22}>
+              <SmallCaps size={9.5} tracking={0.22} color="#1F4A3A">
                 Notes
               </SmallCaps>
               <p className="font-serif text-[15px] leading-[1.55] text-inkFaint mt-2">
@@ -205,7 +205,7 @@ export function ManagerGuestView({
         {/* Latest observation banner */}
         {latestObservation && (
           <section>
-            <SmallCaps tracking={0.3}>
+            <SmallCaps tracking={0.3} color="#1F4A3A">
               Latest observation · {observationAt}
             </SmallCaps>
             <div
@@ -241,7 +241,7 @@ export function ManagerGuestView({
         {/* Aggregate briefs — manager's privilege */}
         <section>
           <div className="flex items-baseline justify-between mb-2">
-            <SmallCaps tracking={0.3}>Briefs across the team</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Briefs across the team</SmallCaps>
             <div className="flex items-center gap-2">
               {working && (
                 <span className="inline-flex items-center gap-1.5 text-[11px] text-discovery uppercase tracking-[0.22em]">
@@ -275,7 +275,7 @@ export function ManagerGuestView({
 
         {/* Pending drafts across the team — read-only oversight */}
         <section>
-          <SmallCaps tracking={0.3} className="mb-2 block">
+          <SmallCaps tracking={0.3} className="mb-2 block" color="#1F4A3A">
             Drafts in flight
           </SmallCaps>
           <h2 className="font-serif text-[26px] text-ink mb-5">
@@ -327,12 +327,12 @@ export function ManagerGuestView({
         {/* Thread */}
         <section>
           <div className="flex items-baseline justify-between mb-3">
-            <SmallCaps tracking={0.3}>Thread with {firstName}</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Thread with {firstName}</SmallCaps>
             <a
               href={`/g/${guest.id}`}
               target="_blank"
               rel="noreferrer"
-              className="text-[10px] uppercase tracking-[0.22em] text-stone hover:text-discovery"
+              className="text-[10px] uppercase tracking-[0.22em] text-discovery hover:text-discoveryDeep"
             >
               Open guest view ↗
             </a>

@@ -1,12 +1,14 @@
 import { cn } from '@/lib/utils';
 
-type Tone = 'paper' | 'light' | 'mid' | 'dark';
+type Tone = 'paper' | 'light' | 'mid' | 'dark' | 'discovery' | 'discoverySoft';
 
 const tones: Record<Tone, { bg: string; fg: string }> = {
   paper: { bg: '#E6E0D6', fg: '#3a342d' },
   light: { bg: '#D8D3CB', fg: '#2a251f' },
   mid: { bg: '#b5ab9e', fg: '#2a251f' },
   dark: { bg: '#3a342d', fg: '#f0ebe1' },
+  discovery: { bg: '#1F4A3A', fg: '#F0E8D6' },
+  discoverySoft: { bg: '#E2EDE6', fg: '#1F4A3A' },
 };
 
 export function Initials({

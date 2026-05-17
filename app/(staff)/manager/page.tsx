@@ -111,7 +111,7 @@ export default async function ManagerOverview() {
     <div className="mx-auto max-w-6xl px-7 py-12 flex flex-col gap-14">
       {/* Masthead */}
       <section className="flex flex-col gap-2">
-        <SmallCaps tracking={0.3}>{today} · Property overview</SmallCaps>
+        <SmallCaps tracking={0.3} color="#1F4A3A">{today} · Property overview</SmallCaps>
         <h1 className="font-serif text-[44px] leading-[1.05] text-ink mt-2">
           Sand Hill, in one view.
         </h1>
@@ -136,7 +136,7 @@ export default async function ManagerOverview() {
             if (!rows.length) return null;
             return (
               <section key={state} className="flex flex-col gap-3">
-                <SmallCaps tracking={0.3}>{sectionLabel[state]}</SmallCaps>
+                <SmallCaps tracking={0.3} color="#1F4A3A">{sectionLabel[state]}</SmallCaps>
                 <div className="flex flex-col">
                   {rows.map((g) => {
                     const pending = drafts.find((d) => d.guestId === g.id);
@@ -198,7 +198,7 @@ export default async function ManagerOverview() {
         {/* Side column — staff + activity */}
         <aside className="flex flex-col gap-10">
           <section>
-            <SmallCaps tracking={0.3}>Your team</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Your team</SmallCaps>
             <ul className="mt-4 flex flex-col gap-3">
               {placeMakers.map((pm) => (
                 <li key={pm.id}>
@@ -222,7 +222,7 @@ export default async function ManagerOverview() {
           </section>
 
           <section>
-            <SmallCaps tracking={0.3}>Activity</SmallCaps>
+            <SmallCaps tracking={0.3} color="#1F4A3A">Activity</SmallCaps>
             <ul className="mt-4 flex flex-col">
               {activity.map((a) => (
                 <li
