@@ -1,14 +1,9 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/db';
-import { PersonaSwitcher } from '@/components/PersonaSwitcher';
 import { IrisWordmark, IrisLockup } from '@/components/iris/Marks';
 
 export const dynamic = 'force-dynamic';
 
-export default async function StaffLayout({ children }: { children: React.ReactNode }) {
-  const placeMakers = await prisma.placeMaker.findMany({
-    orderBy: { createdAt: 'asc' },
-  });
+export default function StaffLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-paper">
       <header className="border-b border-hair bg-paper/80 backdrop-blur-sm sticky top-0 z-10">
@@ -18,14 +13,6 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             <span className="text-stoneFaint">·</span>
             <IrisLockup property="Rosewood · Sand Hill" />
           </Link>
-          <PersonaSwitcher
-            options={placeMakers.map((p) => ({
-              slug: p.slug,
-              name: p.name,
-              role: p.role,
-              title: p.title,
-            }))}
-          />
         </div>
       </header>
       <main className="flex-1">{children}</main>
