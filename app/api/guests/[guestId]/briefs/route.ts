@@ -4,10 +4,14 @@ import { prisma } from '@/lib/db';
 export const runtime = 'nodejs';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ guestId: string }> }
 ) {
   const { guestId } = await params;
+  const url = new URL(req.url);
+  const placeMakerId = url.searchParams.get('placeMakerId');
+  const excludeRole = url.searchParams.get('excludeRole');
+
   const latestNote = await prisma.rawNote.findFirst({
     where: { guestId },
     orderBy: { createdAt: 'desc' },
@@ -15,7 +19,11 @@ export async function GET(
   if (!latestNote) return Response.json({ briefs: [] });
 
   const briefs = await prisma.brief.findMany({
-    where: { sourceRawNoteId: latestNote.id },
+    where: {
+      sourceRawNoteId: latestNote.id,
+      ...(placeMakerId ? { recipientPlaceMakerId: placeMakerId } : {}),
+      ...(excludeRole ? { recipient: { role: { not: excludeRole } } } : {}),
+    },
     include: { recipient: true },
     orderBy: { createdAt: 'asc' },
   });

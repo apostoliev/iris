@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { BriefTrio, type BriefForDisplay } from '@/components/BriefTrio';
+import { Brief } from '@/components/Brief';
+import { type BriefForDisplay } from '@/components/BriefTrio';
 import { DraftCard, type DraftCardData } from '@/components/DraftCard';
 import { Thread, type ThreadItem } from '@/components/Thread';
 import { CaptureModal } from '@/components/CaptureModal';
@@ -27,34 +28,34 @@ export function GuestCockpit({
   placeMakerId,
   placeMakerName,
   guest,
-  initialBriefs,
+  initialBrief,
   initialDraft,
   initialThread,
 }: {
   placeMakerId: string;
   placeMakerName: string;
   guest: Guest;
-  initialBriefs: BriefForDisplay[];
+  initialBrief: BriefForDisplay | null;
   initialDraft: DraftCardData | null;
   initialThread: ThreadItem[];
 }) {
-  const [briefs, setBriefs] = useState(initialBriefs);
+  const [brief, setBrief] = useState<BriefForDisplay | null>(initialBrief);
   const [draft, setDraft] = useState<DraftCardData | null>(initialDraft);
   const [thread, setThread] = useState<ThreadItem[]>(initialThread);
-  const [freshBriefIds, setFreshBriefIds] = useState<Set<string>>(new Set());
+  const [briefFresh, setBriefFresh] = useState(false);
   const [working, setWorking] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
 
   useSse(`guest-${guest.id}`, (event) => {
     if (event.type === 'note.captured') {
       setWorking(true);
-      setFlash('Iris is fanning the brief across roles…');
+      setFlash('Iris is reshaping your brief…');
     }
     if (event.type === 'regenerate.started') {
       setWorking(true);
     }
     if (event.type === 'brief.updated') {
-      refreshBriefs();
+      refreshBrief();
     }
     if (event.type === 'draft.ready') {
       refreshDraft();
@@ -71,16 +72,18 @@ export function GuestCockpit({
     }
   });
 
-  async function refreshBriefs() {
-    const res = await fetch(`/api/guests/${guest.id}/briefs`);
+  async function refreshBrief() {
+    const res = await fetch(
+      `/api/guests/${guest.id}/briefs?placeMakerId=${placeMakerId}`
+    );
     if (!res.ok) return;
     const data = await res.json();
-    const incoming: BriefForDisplay[] = data.briefs ?? [];
-    const previousIds = new Set(briefs.map((b) => b.id));
-    const fresh = new Set(incoming.filter((b) => !previousIds.has(b.id)).map((b) => b.id));
-    setFreshBriefIds(fresh);
-    setBriefs(incoming);
-    setTimeout(() => setFreshBriefIds(new Set()), 5000);
+    const incoming: BriefForDisplay | null = (data.briefs ?? [])[0] ?? null;
+    if (incoming && incoming.id !== brief?.id) {
+      setBriefFresh(true);
+      setTimeout(() => setBriefFresh(false), 5000);
+    }
+    setBrief(incoming);
   }
 
   async function refreshDraft() {
@@ -169,14 +172,14 @@ export function GuestCockpit({
 
       {/* Main column */}
       <div className="flex flex-col gap-14">
-        {/* Briefs by role */}
+        {/* Your brief — and only yours. */}
         <section>
           <div className="flex items-baseline justify-between mb-2">
-            <SmallCaps tracking={0.3}>Briefs by role</SmallCaps>
+            <SmallCaps tracking={0.3}>Your brief on {firstName}</SmallCaps>
             <div className="flex items-center gap-2">
               {working && (
                 <span className="inline-flex items-center gap-1.5 text-[11px] text-discovery uppercase tracking-[0.22em]">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Iris is thinking
+                  <Loader2 className="h-3 w-3 animate-spin" /> Iris is reshaping…
                 </span>
               )}
               {flash && !working && (
@@ -186,15 +189,29 @@ export function GuestCockpit({
               )}
             </div>
           </div>
-          <h2 className="font-serif text-[26px] text-ink mb-2">Same observation, different shape.</h2>
+          <h2 className="font-serif text-[26px] text-ink mb-2">What you, and only you, need to know.</h2>
           <p className="font-serif text-[15.5px] text-inkFaint italic mb-5 max-w-2xl">
-            What each person needs to know, and nothing more. The discretion filter routes role-by-role.
+            The network holds the whole picture. Your brief is the one piece of it
+            shaped for what you do.
           </p>
-          <BriefTrio briefs={briefs} freshIds={freshBriefIds} />
+          {brief ? (
+            <Brief
+              id={brief.id}
+              recipient={brief.recipient}
+              content={brief.content}
+              sensitivity={brief.sensitivity}
+              fresh={briefFresh}
+              className="max-w-3xl"
+            />
+          ) : (
+            <div className="card p-10 text-center text-stone text-[14px] italic font-serif max-w-3xl">
+              No brief yet — capture an observation and the network will route one to you.
+            </div>
+          )}
           <div className="flex items-center gap-2 mt-4">
             <MaitreMark size={12} />
             <SmallCaps size={9.5} tracking={0.22}>
-              Maître has noted his preference for a quiet stay.
+              Maître has held back what isn&apos;t yours to know.
             </SmallCaps>
           </div>
         </section>

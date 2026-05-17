@@ -1,21 +1,18 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
-import { GuestCockpit } from './GuestCockpit';
+import { ManagerGuestView } from './ManagerGuestView';
 
 export const dynamic = 'force-dynamic';
 
-export default async function GuestCockpitPage({
+export default async function ManagerGuestPage({
   params,
 }: {
-  params: Promise<{ placemakerSlug: string; guestId: string }>;
+  params: Promise<{ guestId: string }>;
 }) {
-  const { placemakerSlug, guestId } = await params;
+  const { guestId } = await params;
 
-  const placeMaker = await prisma.placeMaker.findUnique({
-    where: { slug: placemakerSlug },
-  });
-  if (!placeMaker) notFound();
+  const carol = await prisma.placeMaker.findUnique({ where: { slug: 'carol' } });
 
   const guest = await prisma.guest.findUnique({
     where: { id: guestId },
@@ -23,30 +20,30 @@ export default async function GuestCockpitPage({
       relationships: { include: { placeMaker: true } },
     },
   });
-  if (!guest) notFound();
+  if (!guest || !carol) notFound();
 
   const latestRawNote = await prisma.rawNote.findFirst({
     where: { guestId },
     orderBy: { createdAt: 'desc' },
+    include: { source: true },
   });
 
-  // A staff cockpit shows only this person's brief, never anyone else's.
-  const myBrief = latestRawNote
-    ? await prisma.brief.findFirst({
+  // Manager sees every staff brief from the latest observation,
+  // EXCEPT her own (she's the viewer, not a node on the floor).
+  const briefs = latestRawNote
+    ? await prisma.brief.findMany({
         where: {
           sourceRawNoteId: latestRawNote.id,
-          recipientPlaceMakerId: placeMaker.id,
+          recipient: { role: { not: 'manager' } },
         },
         include: { recipient: true },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: 'asc' },
       })
-    : null;
+    : [];
 
-  const latestDraft = await prisma.messageDraft.findFirst({
-    where: {
-      guestId,
-      fromPlaceMakerId: placeMaker.id,
-    },
+  // All currently-pending drafts across the team for this guest.
+  const drafts = await prisma.messageDraft.findMany({
+    where: { guestId, status: 'draft' },
     include: { from: true },
     orderBy: { createdAt: 'desc' },
   });
@@ -85,13 +82,12 @@ export default async function GuestCockpitPage({
   return (
     <div className="mx-auto max-w-7xl px-6 py-8 flex flex-col gap-8">
       <div className="text-sm">
-        <Link href={`/${placemakerSlug}`} className="text-muted hover:text-ink">
-          ← back to your circle
+        <Link href="/manager" className="text-muted hover:text-ink">
+          ← back to property overview
         </Link>
       </div>
-      <GuestCockpit
-        placeMakerId={placeMaker.id}
-        placeMakerName={placeMaker.name}
+      <ManagerGuestView
+        carolId={carol.id}
         guest={{
           id: guest.id,
           name: guest.name,
@@ -104,32 +100,38 @@ export default async function GuestCockpitPage({
           arrivalAt: guest.arrivalAt?.toISOString() ?? null,
           visitCount: guest.visitCount,
         }}
-        initialBrief={
-          myBrief && {
-            id: myBrief.id,
-            content: myBrief.content,
-            sensitivity: myBrief.sensitivity,
-            recipient: {
-              slug: myBrief.recipient.slug,
-              name: myBrief.recipient.name,
-              role: myBrief.recipient.role,
-              title: myBrief.recipient.title,
-            },
+        latestObservation={
+          latestRawNote && {
+            id: latestRawNote.id,
+            content: latestRawNote.content,
+            createdAt: latestRawNote.createdAt.toISOString(),
+            sensitivity: latestRawNote.sensitivity,
+            sourceName: latestRawNote.source.name,
+            sourceRole: latestRawNote.source.role,
           }
         }
-        initialDraft={
-          latestDraft && {
-            id: latestDraft.id,
-            content: latestDraft.content,
-            status: latestDraft.status,
-            from: {
-              name: latestDraft.from.name,
-              slug: latestDraft.from.slug,
-              role: latestDraft.from.role,
-            },
-            intent: latestDraft.intent,
-          }
-        }
+        initialBriefs={briefs.map((b) => ({
+          id: b.id,
+          content: b.content,
+          sensitivity: b.sensitivity,
+          recipient: {
+            slug: b.recipient.slug,
+            name: b.recipient.name,
+            role: b.recipient.role,
+            title: b.recipient.title,
+          },
+        }))}
+        initialDrafts={drafts.map((d) => ({
+          id: d.id,
+          content: d.content,
+          status: d.status,
+          intent: d.intent,
+          from: {
+            name: d.from.name,
+            slug: d.from.slug,
+            role: d.from.role,
+          },
+        }))}
         initialThread={threadItems}
       />
     </div>

@@ -141,9 +141,10 @@ export default async function ManagerOverview() {
                   {rows.map((g) => {
                     const pending = drafts.find((d) => d.guestId === g.id);
                     return (
-                      <div
+                      <Link
                         key={g.id}
-                        className="grid grid-cols-[56px_1fr_auto] gap-4 items-center py-5 border-t border-hair"
+                        href={`/manager/guests/${g.id}`}
+                        className="group grid grid-cols-[56px_1fr_auto] gap-4 items-center py-5 border-t border-hair hover:bg-paperLight transition-colors px-1"
                       >
                         <Initials
                           name={g.name}
@@ -180,14 +181,12 @@ export default async function ManagerOverview() {
                             </p>
                           )}
                         </div>
-                        <Link
-                          href={`/g/${g.id}`}
-                          target="_blank"
-                          className="text-[10px] uppercase tracking-[0.22em] text-stone hover:text-discovery"
-                        >
-                          Guest view ↗
-                        </Link>
-                      </div>
+                        <div className="self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <SmallCaps color="var(--iris-green)" tracking={0.22}>
+                            Oversight →
+                          </SmallCaps>
+                        </div>
+                      </Link>
                     );
                   })}
                 </div>
